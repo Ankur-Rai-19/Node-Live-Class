@@ -30,6 +30,33 @@ app.post("/tokenGenerate", (req, res) => {
     });
 });
 
+/* This is a post request to the server. */
+app.post("/verifyToken", extractToken, (req, res) => {
+    /* This is a function that is used to verify the token. */
+    jwt.verify(req.token, "secretkey", function (err, data) {
+        if (err) {
+            res.sendStatus(403);
+        } else {
+            res.json({ message: "User access granted", data });
+        }
+    });
+});
+
+/*This function is used to extract the token from the request header.*/
+function extractToken(req, res, next) {
+    const bearerHeader = req.headers["authorization"]; // Bearer token
+
+    /* This is a middleware function that is used to extract the token from the request header. */
+    if (bearerHeader !== undefined) {
+        const bearer = bearerHeader.split(" "); // ['Bearer', 'token']
+        const bearerToken = bearer[1];
+        req.token = bearerToken;
+        next();
+    } else {
+        res.sendStatus(403);
+    }
+}
+
 app.listen(port, function (err) {
     if (err) {
         console.log("Error in starting server");
